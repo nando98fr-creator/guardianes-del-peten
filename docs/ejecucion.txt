@@ -1,0 +1,34 @@
+
+ENTREGA 4 · ORDENAMIENTO POR SELECCIÓN
+Antes de ordenar:
+  AL-001 | media | 08:30
+  AL-002 | alta  | 08:45
+  AL-003 | media | 08:10
+  AL-004 | alta  | 08:15
+  AL-005 | media | 08:20
+Después de ordenar:
+  AL-004 | alta  | 08:15
+  AL-002 | alta  | 08:45
+  AL-003 | media | 08:10
+  AL-005 | media | 08:20
+  AL-001 | media | 08:30
+
+ENTREGA 4 · BÚSQUEDA BINARIA
+Animal registrado: TAP-002
+Animal registrado: JAG-001
+Animal registrado: COC-001
+  COC-001 -> CocodriloDePantano(codigo='COC-001', nombre='Ak', especie='cocodrilo de pantano', en_peligro=False)
+  TAP-002 -> Tapir(codigo='TAP-002', nombre='Tziquin', especie='tapir', en_peligro=True)
+  JAG-999 -> None
+Pruebas de la Entrega 4 completadas.
+ENTREGA 3 | Ciclo polimórfico
+JAG-001 | Balam: Caza venados y pecaríes y se desplaza por el bosque y cerca de ríos.
+TAP-001 | Tziquin: Come hojas y frutos y puede nadar para cruzar ríos.
+GUA-001 | Ix: Vuela sobre el bosque y come frutos y semillas en las copas de los árboles.
+COC-001 | Ak: Habita en lagunas y pantanos y captura peces y otras presas.
+OCE-001 | Mancha: De actividad nocturna, caza roedores y se refugia entre la vegetación.
+
+Intento de crear Animal directamente
+TypeError: Can't instantiate abstract class Animal without an implementation for abstract method 'describir'
+
+VERIFICACIÓN COMPLETA: 22 rechazos comprobados; siete casos de uso ejecutados.
