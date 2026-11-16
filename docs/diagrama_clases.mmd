@@ -1,0 +1,73 @@
+classDiagram
+    class SistemaMonitoreo {
+        +list animales
+        +list alertas
+        +list zonas
+        +mostrar()
+        +contar_animales() int
+        +buscar_sector(nombre) Zona_o_None
+        +buscar_zona_codigo(codigo) Zona_o_None
+        +agregar_zona(codigo, nombre, tipo, codigo_padre) bool
+        +ordenar_alertas()
+        +buscar_animal(codigo) Animal_o_None
+        -_ordenar_por_seleccion(elementos, clave)
+    }
+    class Zona {
+        +str codigo
+        +str nombre
+        +str tipo
+        +list subzonas
+        +list animales
+        +agregar_subzona(zona)
+        +ubicar(animal)
+        +mostrar(nivel=0)
+        +contar_animales() int
+        +buscar_sector(nombre) Zona_o_None
+        +buscar_codigo(codigo) Zona_o_None
+    }
+    Zona "1" o-- "0..*" Zona : subzonas
+    Zona "1" o-- "0..*" Animal : animales ubicados
+    class Animal {
+        +str codigo
+        +str nombre
+        +str especie
+        +bool en_peligro
+        +identificacion() str
+        +ficha() str
+        +describir()* str
+    }
+    <<abstract>> Animal
+    class Jaguar {
+        +describir() str
+    }
+    class Tapir {
+        +describir() str
+    }
+    class GuacamayaRoja {
+        +describir() str
+    }
+    class CocodriloDePantano {
+        +describir() str
+    }
+    class Ocelote {
+        +describir() str
+    }
+    Animal <|-- Jaguar
+    Animal <|-- Tapir
+    Animal <|-- GuacamayaRoja
+    Animal <|-- CocodriloDePantano
+    Animal <|-- Ocelote
+    class Alerta {
+        +str codigo
+        +str prioridad
+        +datetime hora
+        +str estado
+    }
+    SistemaMonitoreo o-- Animal
+    SistemaMonitoreo o-- Alerta
+    SistemaMonitoreo o-- Collar
+    SistemaMonitoreo o-- Zona
+    SistemaMonitoreo o-- Guardarrecursos
+    SistemaMonitoreo o-- Lectura
+    SistemaMonitoreo o-- CambioBateria
+    SistemaMonitoreo --> ServicioSMS

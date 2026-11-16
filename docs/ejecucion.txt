@@ -1,3 +1,33 @@
+ENTREGA 5 | RECURSIVIDAD: ZONAS DENTRO DE ZONAS
+
+MAPA COMPLETO (7 zonas)
+Reserva de la Biosfera Maya
+  Laguna del Tigre [núcleo] (1 animales)
+    Sector El Ceibal [núcleo] (1 animales)
+      Aguada El Ceibal [núcleo] (1 animales)
+    Sector Los Cedros [núcleo] (1 animales)
+  Mirador Río Azul [núcleo] (0 animales)
+    Sector La Caoba [núcleo] (1 animales)
+  Uaxactún [uso múltiple] (0 animales)
+
+UBICACIONES
+  Balam -> Laguna del Tigre
+  Tziquin -> Sector El Ceibal
+  Ix -> Aguada El Ceibal
+  Ak -> Sector Los Cedros
+  Mancha -> Sector La Caoba
+
+Animales en toda la reserva: 5
+Animales en Laguna del Tigre y sus sectores: 4
+
+BUSQUEDAS (profundo, primer nivel, inexistente)
+  Aguada El Ceibal -> Zona(codigo=Z03, nombre=Aguada El Ceibal, tipo=núcleo)
+  Laguna del Tigre -> Zona(codigo=Z01, nombre=Laguna del Tigre, tipo=núcleo)
+  Sector Fantasma -> None
+Pruebas de la Entrega 5 completadas.
+
+Integración: R5, listas independientes, GPS y avistamientos en subzonas: OK.
+
 
 ENTREGA 4 · ORDENAMIENTO POR SELECCIÓN
 Antes de ordenar:

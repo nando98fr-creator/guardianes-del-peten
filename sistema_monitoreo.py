@@ -28,7 +28,7 @@ class SistemaMonitoreo:
         'cocodrilo de pantano': CocodriloDePantano,
         'ocelote': Ocelote,
     }
-    TIPOS = ("núcleo", "amortiguamiento", "uso múltiple")
+    TIPOS = Zona.TIPOS_VALIDOS
 
     def __init__(self):
         self.animales = []
@@ -126,7 +126,7 @@ class SistemaMonitoreo:
         return True
 
     def articulo_5(self, codigo_zona):
-        if not self.buscar(self.zonas, codigo_zona):
+        if not self.buscar_zona_codigo(codigo_zona):
             return self.rechazar("Zona no registrada.")
         return True
 
@@ -176,10 +176,44 @@ class SistemaMonitoreo:
         return True
 
     # Métodos auxiliares para la carga inicial, no metas adicionales del diagrama.
-    def agregar_zona(self, codigo, nombre, tipo):
-        if tipo not in self.TIPOS or self.buscar(self.zonas, codigo):
+    def mostrar(self):
+        print("Reserva de la Biosfera Maya")
+        for zona in self.zonas:
+            zona.mostrar(1)
+
+    def contar_animales(self):
+        total = 0
+        for zona in self.zonas:
+            total += zona.contar_animales()
+        return total
+
+    def buscar_sector(self, nombre):
+        for zona in self.zonas:
+            resultado = zona.buscar_sector(nombre)
+            if resultado is not None:
+                return resultado
+        return None
+
+    def buscar_zona_codigo(self, codigo):
+        for zona in self.zonas:
+            resultado = zona.buscar_codigo(codigo)
+            if resultado is not None:
+                return resultado
+        return None
+
+    def agregar_zona(self, codigo, nombre, tipo, codigo_padre=None):
+        if tipo not in self.TIPOS or self.buscar_zona_codigo(codigo):
             return self.rechazar("Tipo de zona inválido o código repetido.")
-        self.zonas.append(Zona(codigo, nombre, tipo))
+        padre = None
+        if codigo_padre is not None:
+            padre = self.buscar_zona_codigo(codigo_padre)
+            if padre is None:
+                return self.rechazar("Zona padre no registrada.")
+        zona = Zona(codigo, nombre, tipo)
+        if padre is None:
+            self.zonas.append(zona)
+        else:
+            padre.agregar_subzona(zona)
         return True
 
     def agregar_collar(self, codigo, bateria):
@@ -244,7 +278,7 @@ class SistemaMonitoreo:
         animal = self.buscar(self.animales, collar.animal_codigo)
         if animal is None:
             return self.rechazar("El collar no tiene animal asignado.")
-        zona = self.buscar(self.zonas, codigo_zona)
+        zona = self.buscar_zona_codigo(codigo_zona)
         if not self.articulo_10(codigo_collar, hora):
             return False
         if self.requiere_alerta_comunidad(animal, zona) and not self.buscar(self.guardarrecursos, self.turno_codigo):

@@ -10,6 +10,7 @@ from cocodrilo_de_pantano import CocodriloDePantano
 from ocelote import Ocelote
 from animal import Animal
 from alerta import Alerta
+from zona import Zona
 
 
 def probar_casos_previos():
@@ -170,7 +171,110 @@ def probar_entrega_4():
     print("Pruebas de la Entrega 4 completadas.")
 
 
+def probar_entrega_5():
+    sistema = SistemaMonitoreo()
+    print("ENTREGA 5 | RECURSIVIDAD: ZONAS DENTRO DE ZONAS")
+    # Tres niveles bajo la reserva: zona -> sector -> aguada.
+    mapa = [
+        ("Z01", "Laguna del Tigre", "núcleo", None),
+        ("Z02", "Sector El Ceibal", "núcleo", "Z01"),
+        ("Z03", "Aguada El Ceibal", "núcleo", "Z02"),
+        ("Z04", "Sector Los Cedros", "núcleo", "Z01"),
+        ("Z05", "Mirador Río Azul", "núcleo", None),
+        ("Z06", "Sector La Caoba", "núcleo", "Z05"),
+        ("Z07", "Uaxactún", "uso múltiple", None),
+    ]
+    for datos in mapa:
+        assert sistema.agregar_zona(*datos)
+
+    # Una sola ubicación por animal en esta demostración.
+    with redirect_stdout(StringIO()):
+        for datos in [
+            ("JAG-001", "Balam", "jaguar", True),
+            ("TAP-001", "Tziquin", "tapir", True),
+            ("GUA-001", "Ix", "guacamaya roja", True),
+            ("COC-001", "Ak", "cocodrilo de pantano", False),
+            ("OCE-001", "Mancha", "ocelote", False),
+        ]:
+            assert sistema.registrar_animal(*datos)
+    ubicaciones = [
+        ("JAG-001", "Laguna del Tigre"),
+        ("TAP-001", "Sector El Ceibal"),
+        ("GUA-001", "Aguada El Ceibal"),
+        ("COC-001", "Sector Los Cedros"),
+        ("OCE-001", "Sector La Caoba"),
+    ]
+    for codigo, nombre_zona in ubicaciones:
+        animal = sistema.buscar_animal(codigo)
+        zona = sistema.buscar_sector(nombre_zona)
+        assert animal is not None and zona is not None
+        zona.ubicar(animal)
+
+    print("\nMAPA COMPLETO (7 zonas)")
+    sistema.mostrar()
+    print("\nUBICACIONES")
+    for codigo, nombre_zona in ubicaciones:
+        print(f"  {sistema.buscar_animal(codigo).nombre} -> {nombre_zona}")
+
+    laguna = sistema.buscar_sector("Laguna del Tigre")
+    print(f"\nAnimales en toda la reserva: {sistema.contar_animales()}")
+    print(f"Animales en Laguna del Tigre y sus sectores: {laguna.contar_animales()}")
+    assert sistema.contar_animales() == 5
+    assert laguna.contar_animales() == 4
+    assert sistema.buscar_sector("Aguada El Ceibal").contar_animales() == 1
+
+    print("\nBUSQUEDAS (profundo, primer nivel, inexistente)")
+    for nombre in ["Aguada El Ceibal", "Laguna del Tigre", "Sector Fantasma"]:
+        resultado = sistema.buscar_sector(nombre)
+        if resultado is None:
+            print(f"  {nombre} -> None")
+        else:
+            print(f"  {nombre} -> Zona(codigo={resultado.codigo}, nombre={resultado.nombre}, tipo={resultado.tipo})")
+    assert sistema.buscar_sector("Aguada El Ceibal") is sistema.buscar_zona_codigo("Z03")
+    assert sistema.buscar_sector("Laguna del Tigre") is sistema.zonas[0]
+    assert sistema.buscar_sector("Sector Fantasma") is None
+    print("Pruebas de la Entrega 5 completadas.\n")
+
+
+def probar_integracion_zonas():
+    # Listas independientes y casos base de un árbol vacío/una hoja.
+    a = Zona("A", "Hoja A", "núcleo")
+    b = Zona("B", "Hoja B", "núcleo")
+    assert a.subzonas is not b.subzonas and a.animales is not b.animales
+    assert a.contar_animales() == 0
+    assert a.buscar_sector("Hoja A") is a
+    assert a.buscar_sector("Ausente") is None
+    vacio = SistemaMonitoreo()
+    assert vacio.contar_animales() == 0 and vacio.buscar_sector("Ausente") is None
+    try:
+        Zona("X", "Inválida", "sector")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("R5 debe rechazar un tipo inválido.")
+    s = SistemaMonitoreo()
+    assert s.agregar_zona("Z01", "Raíz", "núcleo")
+    assert s.agregar_zona("Z02", "Sector", "uso múltiple", "Z01")
+    assert not s.agregar_zona("Z03", "Inválida", "sector", "Z01")
+    assert not s.agregar_zona("Z02", "Repetida", "núcleo")
+    assert not s.agregar_zona("Z04", "Sin padre", "núcleo", "Z99")
+    assert len(s.zonas) == 1 and len(s.zonas[0].subzonas) == 1
+    assert s.registrar_animal("JAG-001", "Balam", "jaguar", True)
+    assert s.agregar_collar("COL-01", 80)
+    assert s.asignar_collar("COL-01", "JAG-001")
+    assert s.agregar_guardarrecursos("GR-07", "Mateo", "TELEFONO_DE_PRUEBA")
+    assert s.establecer_turno("GR-07")
+    assert s.reportar_posicion("COL-01", "Z02", datetime(2026, 11, 15, 8))
+    assert len(s.servicio_sms.envios) == 1
+    assert s.registrar_avistamiento("GR-07", "JAG-001", "Z02", datetime(2026, 11, 15, 9))
+    assert len(s.lecturas) == 2
+
+
 def main():
+    probar_entrega_5()
+    with redirect_stdout(StringIO()):
+        probar_integracion_zonas()
+    print("Integración: R5, listas independientes, GPS y avistamientos en subzonas: OK.\n")
     probar_entrega_4()
     probar_entrega_3()
     with redirect_stdout(StringIO()) as salida:
