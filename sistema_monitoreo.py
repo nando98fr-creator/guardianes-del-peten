@@ -14,6 +14,8 @@ from lectura import Lectura
 from alerta import Alerta
 from cambio_bateria import CambioBateria
 from servicio_sms import ServicioSMS
+from cola_alertas import ColaAlertas
+from bitacora_patrulla import BitacoraPatrulla
 
 
 class SistemaMonitoreo:
@@ -37,6 +39,8 @@ class SistemaMonitoreo:
         self.guardarrecursos = []
         self.lecturas = []
         self.alertas = []
+        self.cola_alertas = ColaAlertas()
+        self.bitacora = BitacoraPatrulla()
         self.cambios_bateria = []
         self.servicio_sms = ServicioSMS()
         self.turno_codigo = None
@@ -262,6 +266,7 @@ class SistemaMonitoreo:
     def crear_alerta(self, tipo, prioridad, collar, hora):
         alerta = Alerta(f"AL-{len(self.alertas)+1:03d}", tipo, prioridad, collar.codigo, hora)
         self.alertas.append(alerta)
+        self.cola_alertas.encolar(alerta)
         print(f"Alerta pendiente: {alerta.codigo}, {tipo}, prioridad {prioridad}.")
         return alerta
 
@@ -322,6 +327,31 @@ class SistemaMonitoreo:
         alerta.atendida_por = codigo_guardarrecursos
         print(f"Alerta {alerta.codigo} atendida por {codigo_guardarrecursos}.")
         return True
+
+    def atender_siguiente_alerta(self, codigo_guardarrecursos):
+        if self.cola_alertas.esta_vacia():
+            print("No hay alertas por atender")
+            return None
+        # Un responsable inválido no debe sacar ni modificar alertas.
+        if not self.responsable_valido(codigo_guardarrecursos):
+            return None
+        while not self.cola_alertas.esta_vacia():
+            alerta = self.cola_alertas.siguiente()
+            if not self.articulo_8(alerta):
+                # Compatibilidad con la atención por código de entregas previas:
+                # se retira una referencia ya atendida sin atenderla otra vez.
+                self.cola_alertas.atender()
+                continue
+            alerta = self.cola_alertas.atender()
+            alerta.estado = "atendida"
+            alerta.atendida_por = codigo_guardarrecursos
+            self.bitacora.registrar(
+                f"Atendí {alerta.codigo}: {alerta.tipo} ({codigo_guardarrecursos})"
+            )
+            print(f"Alerta {alerta.codigo} atendida por {codigo_guardarrecursos}.")
+            return alerta
+        print("No hay alertas por atender")
+        return None
 
     def consultar_movimientos(self, codigo_animal):
         if not self.buscar(self.animales, codigo_animal):

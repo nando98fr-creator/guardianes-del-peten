@@ -270,7 +270,71 @@ def probar_integracion_zonas():
     assert len(s.lecturas) == 2
 
 
+def probar_entrega_6():
+    sistema = SistemaMonitoreo()
+    hora = datetime(2026, 11, 22, 8)
+    with redirect_stdout(StringIO()):
+        assert sistema.agregar_zona("Z01", "Uaxactún", "uso múltiple")
+        assert sistema.agregar_guardarrecursos("GR-07", "Mateo", "TELEFONO_DE_PRUEBA")
+        assert sistema.establecer_turno("GR-07")
+        assert sistema.registrar_animal("JAG-001", "Balam", "jaguar", True)
+        assert sistema.registrar_animal("TAP-001", "Tziquin", "tapir", True)
+        assert sistema.agregar_collar("COL-01", 5)
+        assert sistema.agregar_collar("COL-02", 80)
+        assert sistema.asignar_collar("COL-01", "JAG-001")
+        assert sistema.asignar_collar("COL-02", "TAP-001")
+
+    print("ENTREGA 6 | COLA FIFO Y BITACORA LIFO")
+    print("\n1. GENERAR CUATRO ALERTAS (orden de llegada)")
+    with redirect_stdout(StringIO()):
+        assert sistema.reportar_posicion("COL-01", "Z01", hora) is False
+        assert sistema.reportar_posicion("COL-02", "Z01", hora + timedelta(minutes=1))
+        assert sistema.reportar_posicion("COL-01", "Z01", hora + timedelta(minutes=2)) is False
+        assert sistema.reportar_posicion("COL-02", "Z01", hora + timedelta(minutes=3))
+    for alerta in sistema.alertas:
+        print(f"  {alerta.codigo}: {alerta.tipo}, {alerta.prioridad}, {alerta.hora:%H:%M}")
+    print(f"En la cola: {sistema.cola_alertas.tamanio()}")
+    print(f"Siguiente: {sistema.cola_alertas.siguiente().codigo}")
+    assert sistema.cola_alertas.tamanio() == 4
+    assert sistema.cola_alertas.siguiente() is sistema.alertas[0]
+
+    print("\n2. ATENDER DOS ALERTAS")
+    primera = sistema.atender_siguiente_alerta("GR-07")
+    segunda = sistema.atender_siguiente_alerta("GR-07")
+    print(f"Salieron en orden: {primera.codigo}, {segunda.codigo}")
+    print(f"Quedan: {sistema.cola_alertas.tamanio()}")
+    assert [primera.codigo, segunda.codigo] == ["AL-001", "AL-002"]
+    assert primera.estado == segunda.estado == "atendida"
+    assert primera.atendida_por == segunda.atendida_por == "GR-07"
+    assert sistema.cola_alertas.siguiente().codigo == "AL-003"
+
+    print("\n3. REGISTRAR CUATRO ENTRADAS Y DESHACER LA ULTIMA")
+    for entrada in ["Inicié la patrulla en Uaxactún",
+                    "Revisé la aguada Los Patos",
+                    "Verifiqué los collares del sector",
+                    "Cerré la patrulla (anotación equivocada)"]:
+        sistema.bitacora.registrar(entrada)
+    print(f"Deshecha: {sistema.bitacora.deshacer()}")
+    assert sistema.bitacora.ultima() == "Verifiqué los collares del sector"
+    print("Bitácora, de la más reciente a la más antigua:")
+    sistema.bitacora.mostrar()
+
+    print("\n4. VACIAR LA COLA Y ATENDER UNA VEZ MAS")
+    restantes = []
+    while not sistema.cola_alertas.esta_vacia():
+        restantes.append(sistema.atender_siguiente_alerta("GR-07").codigo)
+    assert restantes == ["AL-003", "AL-004"]
+    print(f"En la cola: {sistema.cola_alertas.tamanio()}")
+    resultado = sistema.atender_siguiente_alerta("GR-07")
+    print(f"Resultado de la llamada extra: {resultado}")
+    assert resultado is None
+    assert all(a.estado == "atendida" for a in sistema.alertas)
+    assert len(sistema.alertas) == 4  # El historial se conserva.
+    print("Pruebas de la Entrega 6 completadas.\n")
+
+
 def main():
+    probar_entrega_6()
     probar_entrega_5()
     with redirect_stdout(StringIO()):
         probar_integracion_zonas()

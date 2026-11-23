@@ -3,6 +3,10 @@ classDiagram
         +list animales
         +list alertas
         +list zonas
+        +ColaAlertas cola_alertas
+        +BitacoraPatrulla bitacora
+        +crear_alerta(tipo, prioridad, collar, hora) Alerta
+        +atender_siguiente_alerta(codigo_guardarrecursos) Alerta_o_None
         +mostrar()
         +contar_animales() int
         +buscar_sector(nombre) Zona_o_None
@@ -12,6 +16,25 @@ classDiagram
         +buscar_animal(codigo) Animal_o_None
         -_ordenar_por_seleccion(elementos, clave)
     }
+    class ColaAlertas {
+        -list _alertas
+        +encolar(alerta)
+        +atender() Alerta_o_None
+        +siguiente() Alerta_o_None
+        +esta_vacia() bool
+        +tamanio() int
+    }
+    class BitacoraPatrulla {
+        -list _entradas
+        +registrar(entrada)
+        +deshacer() str_o_None
+        +ultima() str_o_None
+        +esta_vacia() bool
+        +mostrar()
+    }
+    SistemaMonitoreo "1" *-- "1" ColaAlertas : cola_alertas
+    SistemaMonitoreo "1" *-- "1" BitacoraPatrulla : bitacora
+    ColaAlertas o-- Alerta : pendientes en FIFO
     class Zona {
         +str codigo
         +str nombre

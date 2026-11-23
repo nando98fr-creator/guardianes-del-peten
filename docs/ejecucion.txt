@@ -1,3 +1,36 @@
+ENTREGA 6 | COLA FIFO Y BITACORA LIFO
+
+1. GENERAR CUATRO ALERTAS (orden de llegada)
+  AL-001: batería baja, media, 08:00
+  AL-002: acercamiento a comunidad, alta, 08:01
+  AL-003: batería baja, media, 08:02
+  AL-004: acercamiento a comunidad, alta, 08:03
+En la cola: 4
+Siguiente: AL-001
+
+2. ATENDER DOS ALERTAS
+Alerta AL-001 atendida por GR-07.
+Alerta AL-002 atendida por GR-07.
+Salieron en orden: AL-001, AL-002
+Quedan: 2
+
+3. REGISTRAR CUATRO ENTRADAS Y DESHACER LA ULTIMA
+Deshecha: Cerré la patrulla (anotación equivocada)
+Bitácora, de la más reciente a la más antigua:
+Verifiqué los collares del sector
+Revisé la aguada Los Patos
+Inicié la patrulla en Uaxactún
+Atendí AL-002: acercamiento a comunidad (GR-07)
+Atendí AL-001: batería baja (GR-07)
+
+4. VACIAR LA COLA Y ATENDER UNA VEZ MAS
+Alerta AL-003 atendida por GR-07.
+Alerta AL-004 atendida por GR-07.
+En la cola: 0
+No hay alertas por atender
+Resultado de la llamada extra: None
+Pruebas de la Entrega 6 completadas.
+
 ENTREGA 5 | RECURSIVIDAD: ZONAS DENTRO DE ZONAS
 
 MAPA COMPLETO (7 zonas)
